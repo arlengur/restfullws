@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Vehicle Data</title>
+
+    <script type="text/javascript">
+        var myhttp;
+        var stid = 0;
+        function init() {
+            if (window.XMLHttpRequest) {
+                // FireFox, Safari, etc.
+                myhttp = new XMLHttpRequest();
+            }
+            else if (window.ActiveXObject) {
+                // MSIE
+                myhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            else {
+                // No known mechanism
+            }
+        }
+
+        function userData() {
+            var recordIdUser = document.getElementById("recordId");
+            var url = "/testRestApp/restws/login/" + recordIdUser.value;
+            myhttp.open('GET', url, true);
+            myhttp.send(null);
+            myhttp.onreadystatechange = function () {
+                if (myhttp.readyState == 4) {
+                    if (myhttp.status == 200) {
+                        var result = eval("(" + myhttp.responseText + ")");
+                        if (result.trackingId > 0) {
+                            hideElement("login");
+                            showElement("logout");
+                            document.getElementById('VehicleData').disabled = false;
+                            document.getElementById('VehicleData').selectedIndex = "0";
+                            document.getElementById('VehicleData').options[0].selected = true;
+                            document.getElementById('title').textContent = "Hello, your Record Number = " + result.recordNumber;
+
+
+                            document.getElementById('latitude').value = result.latitude;
+                            document.getElementById('longitude').value = result.longitude;
+                            document.getElementById('speed').value = result.speed;
+                            document.getElementById('heading').value = result.heading;
+                            document.getElementById('elevation').value = result.elevation;
+                            document.getElementById('agedStatus').value = result.agedStatus;
+                            document.getElementById('ehpe').value = result.ehpe;
+                        } else {
+                            alert("Invalid Record Number");
+                        }
+                    } else {
+                        alert("Error:" + myhttp.responseText);
+                    }
+                }
+            };
+        }
+
+        function logoutUser() {
+            showElement("login");
+            hideElement("logout");
+            hideElement("fluid");
+            hideElement("tire");
+            hideElement("battery");
+            hideElement("warning");
+            hideElement("getData");
+            hideElement("location");
+            document.getElementById('VehicleData').disabled = true;
+            document.getElementById('title').textContent = "Hello, Guest! Enter the Record Number."
+        }
+
+        function showElement(id) {
+            document.getElementById(id).style.display = "block";
+        }
+        function hideElement(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function combChg() {
+            var vtype = document.getElementById("VehicleData");
+            var value = vtype.options[vtype.selectedIndex].value;
+            showElement("getData");
+            if (value == "1") {
+                showElement("fluid");
+                hideElement("tire");
+                hideElement("battery");
+                hideElement("warning");
+                hideElement("location");
+            }
+            else if (value == "2") {
+                showElement("tire");
+                hideElement("fluid");
+                hideElement("battery");
+                hideElement("warning");
+                hideElement("location");
+            }
+            else if (value == "3") {
+                showElement("battery");
+                hideElement("fluid");
+                hideElement("tire");
+                hideElement("warning");
+                hideElement("location");
+            }
+            else if (value == "4") {
+                showElement("warning");
+                hideElement("fluid");
+                hideElement("tire");
+                hideElement("battery");
+                hideElement("location");
+            }
+            else if (value == "5") {
+                showElement("location");
+                hideElement("fluid");
+                hideElement("tire");
+                hideElement("battery");
+                hideElement("warning");
+            }
+        }
+
+        window.onload = function hideAll() {
+            init();
+            logoutUser();
+        }
+
+    </script>
+</head>
+<body>
+
+<h2 id="title"></h2>
+
+<!-- LOGIN FORM -->
+<form id="logout">
+    <input type="button" value="Logout" onclick="logoutUser()"/>
+</form>
+
+<form id="login">
+    <table>
+        <tr>
+            <td>Record Number:</td>
+            <td><input id="recordId" type="text" size="10"></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="Log In" onclick="userData()"></td>
+        </tr>
+    </table>
+</form>
+
+<!-- TITLE -->
+<div style="text-align:center; color:#0000FF">
+    <h1> Vehicle Information </h1>
+</div>
+
+
+<hr>
+<label> Vehicle Data Type: </label>
+<select id="VehicleData" name="VehicleDataTypeSelector" onchange="combChg()">
+    <option value="0"></option>
+    <option value="1">Fluids</option>
+    <option value="2">Tire</option>
+    <option value="3">Battery</option>
+    <option value="4">Warning Diagnostics</option>
+    <option value="5">Location Information</option>
+</select>
+<hr>
+
+<!-- VEHICLE DATA -->
+<div id="fluid" style="color:#0000FF">
+    <h2> Vehicle Fluid Information </h2>
+    <table>
+        <tr>
+            <td>Coolant level:</td>
+            <td><input type="text" name="coolant" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Brake Fluid level:</td>
+            <td><input type="text" name="brakeFluid" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Oil level:</td>
+            <td><input type="text" name="oil" value="" readonly="readonly"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="tire" style="color:#0000FF">
+    <h2> Vehicle Tire Pressure </h2>
+    <table>
+        <tr>
+            <td>Right Front:</td>
+            <td><input type="text" name="rightFrontTire" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Left Front:</td>
+            <td><input type="text" name="leftFrontTire" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Right Rear:</td>
+            <td><input type="text" name="rightrearTire" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Left Rear:</td>
+            <td><input type="text" name="leftRearTire" value="" readonly="readonly"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="battery" style="color:#0000FF">
+    <h2> Vehicle Battery </h2>
+    <table>
+        <tr>
+            <td>Battery level:</td>
+            <td><input type="text" name="batteryLevel" value="" readonly="readonly"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="warning" style="color:#0000FF">
+    <h2> Vehicle Warning </h2>
+    <table>
+        <tr>
+            <td>Vehicle warning message:</td>
+            <td><input type="text" name="warningIndicator" value="" readonly="readonly"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="location" style="color:#0000FF">
+    <h2> Vehicle Location Information </h2>
+    <table>
+        <tr>
+            <td>Latitude:</td>
+            <td><input type="text" id="latitude" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Longitude:</td>
+            <td><input type="text" id="longitude" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Current GPS speed from GPS (m/s):</td>
+            <td><input type="text" id="speed" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Current Heading from GPS (degrees):</td>
+            <td><input type="text" id="heading" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Current elevation from GPS (m):</td>
+            <td><input type="text" id="elevation" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Current Aged Status of GPS information:</td>
+            <td><input type="text" id="agedStatus" value="" readonly="readonly"/></td>
+        </tr>
+        <tr>
+            <td>Expected Horizontal Position Error (m):</td>
+            <td><input type="text" id="ehpe" value="" readonly="readonly"/></td>
+        </tr>
+    </table>
+</div>
+
+<br>
+<input id="getData" type="button" value="Get Vehicle Data" onclick="userData()"/>
+</body>
+</html>
+
